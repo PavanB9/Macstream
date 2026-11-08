@@ -4,6 +4,13 @@
 up in a window on the PC, sharp (native resolution) and smooth (~60 fps, a few ms of delay),
 and your PC's mouse and keyboard control the Mac.
 
+<p align="center">
+  <a href="docs/media/macstream-demo.mp4"><img src="docs/media/macstream-demo.gif" width="800"
+    alt="Macstream demo: a MacBook's screen shown on a Windows PC over one Ethernet cable"></a>
+  <br>
+  <a href="docs/media/macstream-demo.mp4">Watch the full demo with sound (MP4, 43 s)</a>
+</p>
+
 - **Sharp and fast:** the Mac's real pixels, hardware-encoded on the Mac, hardware-decoded
   on the PC.
 - **Full control:** mouse, scrolling, every key, with Mac shortcuts on PC keys
