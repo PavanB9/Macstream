@@ -36,15 +36,11 @@ xcode-select --install          # only if you don't have Xcode or its command li
 
 This makes the **Macstream** app (it shows up in Launchpad).
 
-**3. PC.** Open PowerShell in the folder and run:
-
-```powershell
-.\tools\setup-dotnet.ps1
-.\tools\setup-ffmpeg.ps1
-```
-
-This downloads the two things the viewer needs (about 370 MB, checked against their
-published checksums) into the folder. No admin rights, nothing installed system-wide.
+**3. PC.** Nothing to install. The first time you open `Macstream.cmd` (below), it downloads
+the two things the viewer needs into the folder (about 370 MB, checked against their
+published checksums) and builds the viewer, which takes a few minutes. After that it opens
+straight away. No admin rights, nothing installed system-wide. If Windows asks whether to
+run the file, choose **Run** (or *More info* → *Run anyway*).
 
 ## Use it
 
@@ -79,7 +75,11 @@ Everything is explained in [docs/settings.md](docs/settings.md).
 
 - **"Looking for the Mac on the cable":** check that Macstream is running on the Mac and
   the cable is plugged in at both ends.
-- **Black picture:** run `.\tools\setup-ffmpeg.ps1` again, then reopen `Macstream.cmd`.
+- **First run stopped with "Setup failed":** check the internet connection and open
+  `Macstream.cmd` again. It tries again (a broken download is detected, deleted and fetched
+  again).
+- **Black picture:** delete the `third_party\ffmpeg` folder and open `Macstream.cmd` again
+  (it downloads FFmpeg again).
 - **Mouse or keyboard does nothing:** allow Macstream under Accessibility on the Mac and
   open it again.
 - **Lid closed:** see [docs/closed-lid.md](docs/closed-lid.md).
