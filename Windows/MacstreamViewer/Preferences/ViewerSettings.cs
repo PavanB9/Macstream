@@ -39,6 +39,12 @@ public sealed class ViewerSettings
     /// <summary>Extra display text size: 0/null = automatic, 1 = normal, 2 = Retina (larger).</summary>
     public int? ExtraDisplayTextScale { get; set; }
 
+    /// <summary>Highest frame rate for the extra display: 0/null = 60 (default), 90 or 120.</summary>
+    public int? ExtraDisplayMaxFps { get; set; }
+
+    /// <summary>Older form of <see cref="ExtraDisplayMaxFps"/> (true = 120); still read once.</summary>
+    public bool? SmootherMotion { get; set; }
+
     /// <summary>Where the MacBook's own screen is, seen from this PC's monitor: off (null),
     /// left, right, above or below. With the extra display, pushing the mouse off that edge
     /// moves it onto the Mac's own screen.</summary>

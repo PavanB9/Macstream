@@ -12,21 +12,23 @@ private struct StreamKey: Equatable {
     let height: Int
     let backingScale: Int
     let refreshRate: Int
+    let fps: Int
 
-    static let mirror = StreamKey(extraDisplay: false, width: 0, height: 0, backingScale: 0, refreshRate: 0)
+    static let mirror = StreamKey(extraDisplay: false, width: 0, height: 0, backingScale: 0, refreshRate: 0, fps: 0)
 
-    init(extraDisplay: Bool, width: Int, height: Int, backingScale: Int, refreshRate: Int) {
+    init(extraDisplay: Bool, width: Int, height: Int, backingScale: Int, refreshRate: Int, fps: Int) {
         self.extraDisplay = extraDisplay
         self.width = width
         self.height = height
         self.backingScale = backingScale
         self.refreshRate = refreshRate
+        self.fps = fps
     }
 
-    init(_ config: VirtualDisplayConfiguration) {
+    init(_ config: VirtualDisplayConfiguration, fps: Int) {
         if config.enabled {
             self.init(extraDisplay: true, width: config.width, height: config.height,
-                      backingScale: config.backingScale, refreshRate: config.refreshRate)
+                      backingScale: config.backingScale, refreshRate: config.refreshRate, fps: fps)
         } else {
             self = .mirror
         }
@@ -160,8 +162,9 @@ struct MacstreamServer {
                 // Keep the running stream if it shows what this viewer wants (the usual case:
                 // a reconnect). If the viewer's Settings now ask for the other kind of screen
                 // or another size, stop it and build the new one.
+                let wantedFps = streamFPS(clientInfo: clientInfo)
                 let wanted = StreamKey(VirtualDisplayConfiguration.load(
-                    clientInfo: clientInfo, fps: streamFPS(clientInfo: clientInfo)))
+                    clientInfo: clientInfo, fps: wantedFps), fps: wantedFps)
                 if let current = activeRuntimeKey() {
                     if current == wanted { return }
                     print("\(ServerText.mainTag) The PC asked for a different Mac screen; rebuilding the stream")
@@ -452,7 +455,12 @@ struct MacstreamServer {
 
         if let refreshRate = clientInfo?.refreshRate,
            refreshRate >= 24 {
-            return min(refreshRate, 60)
+            // Above 60 only for an extra display whose viewer picked a higher frame rate (90 or
+            // 120 in its Settings); otherwise (and always for the mirror) at most 60, as before.
+            let requested = clientInfo?.screen?.maxFps ?? 0
+            let cap = requested > 60 && VirtualDisplayConfiguration.wantsExtraDisplay(clientInfo: clientInfo)
+                ? min(requested, 120) : 60
+            return min(refreshRate, cap)
         }
 
         return 60

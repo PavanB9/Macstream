@@ -8,15 +8,17 @@ namespace MacstreamViewer.Display;
 public readonly record struct ClientDisplayInfo(int Width, int Height, int RefreshRate, int Dpi);
 
 /// <summary>
-/// What the viewer asks the Mac to show (HELLO bytes 16-31, see Protocol/PROTOCOL.md):
+/// What the viewer asks the Mac to show (HELLO bytes 16-35, see Protocol/PROTOCOL.md):
 /// the Mac's own screen (default), or an extra Mac display of a given size and text scale.
+/// MaxFps: 0 = the usual cap of 60, 90 or 120 = a higher cap (the Mac uses it for an extra
+/// display only; the mirror request carries it just so the choice is remembered).
 /// </summary>
-public readonly record struct MacScreenRequest(bool ExtraDisplay, int Width, int Height, int TextScale)
+public readonly record struct MacScreenRequest(bool ExtraDisplay, int Width, int Height, int TextScale, int MaxFps = 0)
 {
     public static readonly MacScreenRequest Mirror = new(false, 0, 0, 0);
 
     public override string ToString() => ExtraDisplay
-        ? $"extra display {(Width > 0 ? $"{Width}x{Height}" : "at monitor size")}, text {(TextScale switch { 1 => "normal", 2 => "Retina", _ => "auto" })}"
+        ? $"extra display {(Width > 0 ? $"{Width}x{Height}" : "at monitor size")}, text {(TextScale switch { 1 => "normal", 2 => "Retina", _ => "auto" })}{(MaxFps > 60 ? $", up to {MaxFps} fps" : "")}"
         : "mirror the Mac's screen";
 }
 

@@ -385,9 +385,10 @@ public class FrameReceiver
 
     private async Task SendHelloAsync(Stream stream, ClientDisplayInfo displayInfo, CancellationToken ct)
     {
-        // 0-15: this PC's monitor. 16-31: what to show (older Mac servers read only 0-15).
+        // 0-15: this PC's monitor. 16-31: what to show. 32-35: highest frame rate for an extra
+        // display (older Mac servers read only what they know and ignore the rest).
         var screen = Screen;
-        var payload = new byte[32];
+        var payload = new byte[36];
         BinaryPrimitives.WriteUInt32LittleEndian(payload.AsSpan(0, 4), (uint)displayInfo.Width);
         BinaryPrimitives.WriteUInt32LittleEndian(payload.AsSpan(4, 4), (uint)displayInfo.Height);
         BinaryPrimitives.WriteUInt32LittleEndian(payload.AsSpan(8, 4), (uint)displayInfo.RefreshRate);
@@ -396,6 +397,7 @@ public class FrameReceiver
         BinaryPrimitives.WriteUInt32LittleEndian(payload.AsSpan(20, 4), (uint)Math.Clamp(screen.TextScale, 0, 2));
         BinaryPrimitives.WriteUInt32LittleEndian(payload.AsSpan(24, 4), (uint)Math.Max(screen.Width, 0));
         BinaryPrimitives.WriteUInt32LittleEndian(payload.AsSpan(28, 4), (uint)Math.Max(screen.Height, 0));
+        BinaryPrimitives.WriteUInt32LittleEndian(payload.AsSpan(32, 4), screen.MaxFps > 60 ? (uint)Math.Min(screen.MaxFps, 120) : 0u);
 
         var header = new PacketHeader
         {

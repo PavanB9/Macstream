@@ -39,6 +39,7 @@ public sealed class SettingsWindow : Window
     private readonly ComboBox _screenMode;
     private readonly ComboBox _screenSize;
     private readonly ComboBox _screenText;
+    private readonly ComboBox _frameRate;
     private readonly ComboBox _ownSide;
     private readonly ComboBox _ownPart;
     private readonly CheckBox _clipboard;
@@ -81,11 +82,19 @@ public sealed class SettingsWindow : Window
         _screenText.Items.Add(new ComboBoxItem { Content = "Larger (Retina, half the space)", Tag = 2 });
         root.Children.Add(LabeledRow("Text size", _screenText));
 
+        _frameRate = new ComboBox { Width = 290, HorizontalAlignment = HorizontalAlignment.Left };
+        _frameRate.Items.Add(new ComboBoxItem { Content = "60 fps (default)", Tag = 0 });
+        _frameRate.Items.Add(new ComboBoxItem { Content = "Up to 90 fps", Tag = 90 });
+        _frameRate.Items.Add(new ComboBoxItem { Content = "Up to 120 fps", Tag = 120 });
+        root.Children.Add(LabeledRow("Frame rate", _frameRate));
+
         root.Children.Add(new TextBlock
         {
             Text = "An extra display is a second Mac desktop made to fit this PC, pixel for pixel: drag "
                 + "windows onto it, or close the lid (with Amphetamine) to use it on its own. Changing this "
-                + "reconnects. If the Mac can't make one, it shows its own screen instead.",
+                + "reconnects. If the Mac can't make one, it shows its own screen instead. A frame rate above "
+                + "60 needs a monitor running at 90/120 Hz or more and uses more of the Mac's power; how high "
+                + "it really gets depends on the Mac. The Mac's own screen always streams at 60.",
             TextWrapping = TextWrapping.Wrap,
             Foreground = Brushes.DimGray,
             Margin = new Thickness(0, 6, 0, 0),
@@ -93,6 +102,7 @@ public sealed class SettingsWindow : Window
         _screenMode.SelectionChanged += (_, _) => ScreenChanged();
         _screenSize.SelectionChanged += (_, _) => ScreenChanged();
         _screenText.SelectionChanged += (_, _) => ScreenChanged();
+        _frameRate.SelectionChanged += (_, _) => ScreenChanged();
 
         // The MacBook's own screen beside this monitor (extra display only)
         _ownSide = new ComboBox { Width = 290, HorizontalAlignment = HorizontalAlignment.Left };
@@ -289,8 +299,12 @@ public sealed class SettingsWindow : Window
             .FirstOrDefault(i => i.Tag is (int w, int h) && w == screen.Width && h == screen.Height)
             ?? _screenSize.Items[0];
         _screenText.SelectedIndex = Math.Clamp(screen.TextScale, 0, 2);
+        _frameRate.SelectedItem = _frameRate.Items.OfType<ComboBoxItem>()
+            .LastOrDefault(i => i.Tag is int fps && fps <= Math.Max(screen.MaxFps, 0))
+            ?? _frameRate.Items[0];
         _screenSize.IsEnabled = screen.ExtraDisplay;
         _screenText.IsEnabled = screen.ExtraDisplay;
+        _frameRate.IsEnabled = screen.ExtraDisplay;
 
         var own = _host.OwnScreen;
         _ownSide.SelectedItem = _ownSide.Items.OfType<ComboBoxItem>().FirstOrDefault(i => (MacSide)i.Tag == own.Side)
@@ -346,11 +360,16 @@ public sealed class SettingsWindow : Window
         var extra = _screenMode.SelectedItem is ComboBoxItem { Tag: true };
         var (width, height) = _screenSize.SelectedItem is ComboBoxItem { Tag: (int w, int h) } ? (w, h) : (0, 0);
         var textScale = _screenText.SelectedItem is ComboBoxItem { Tag: int t } ? t : 0;
+        var maxFps = _frameRate.SelectedItem is ComboBoxItem { Tag: int f } ? f : 0;
         _screenSize.IsEnabled = extra;
         _screenText.IsEnabled = extra;
+        _frameRate.IsEnabled = extra;
         UpdateOwnEnabled(extra);
-        // Size and text only matter for the extra display; the mirror is always the plain request.
-        _host.MacScreen = extra ? new MacScreenRequest(true, width, height, textScale) : MacScreenRequest.Mirror;
+        // Size, text and frame rate only matter for the extra display; the mirror request just
+        // remembers the frame-rate choice (the Mac keeps the mirror at 60 either way).
+        _host.MacScreen = extra
+            ? new MacScreenRequest(true, width, height, textScale, maxFps)
+            : MacScreenRequest.Mirror with { MaxFps = maxFps };
     }
 
     private static DockPanel LabeledRow(string label, FrameworkElement control)

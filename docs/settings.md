@@ -38,7 +38,11 @@ remembered (`.local\settings\viewer.json`):
   display for this PC**: a second Mac desktop at your monitor's size (or a size you pick),
   pixel for pixel. Drag Mac windows onto it, or close the lid (with Amphetamine) to use it on
   its own. *Text size*: Normal is sharpest with the most space; Larger is Retina (everything
-  twice the size). Changing it reconnects; if the Mac can't make the display it shows its
+  twice the size). *Frame rate*: 60 fps by default; *Up to 90* or *Up to 120 fps* for
+  a monitor that runs that fast. It uses more of the Mac's power and battery, and how high
+  it really gets depends on the Mac (its video encoder sets the limit: an M2 MacBook Air
+  reached about 87 fps in testing). The mirror stays at 60. Changing any of these reconnects; if the Mac can't
+  make the display it shows its
   own screen instead. The Mac's menu bar says which one the PC is seeing. When the PC
   disconnects, the Mac removes the extra display after 5 seconds (a quick reconnect keeps
   it, with its windows), so nothing is left on a screen nobody can see.

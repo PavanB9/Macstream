@@ -19,6 +19,10 @@ struct ScreenRequest: Equatable {
     /// Extra display size in pixels; 0 = the PC monitor's size.
     let width: Int
     let height: Int
+    /// Highest frame rate the viewer wants for an extra display (HELLO bytes 32-35):
+    /// 0 = the default cap of 60; 61-120 (the viewer offers 90 and 120) raise the cap.
+    /// The mirror ignores it.
+    var maxFps: Int = 0
 }
 
 class FrameServer {
@@ -639,14 +643,15 @@ class FrameServer {
                     extraDisplay: readUInt32(payload, offset: 16) == 1,
                     textScale: Int(min(readUInt32(payload, offset: 20), 2)),
                     width: Int(min(readUInt32(payload, offset: 24), 16_384)),
-                    height: Int(min(readUInt32(payload, offset: 28), 16_384)))
+                    height: Int(min(readUInt32(payload, offset: 28), 16_384)),
+                    maxFps: payload.count >= 36 ? Int(min(readUInt32(payload, offset: 32), 120)) : 0)
             }
             lastClientDisplayInfo = info
             helloConnectionIds.insert(ObjectIdentifier(conn))
             let screenText: String
             if let screen = info.screen, screen.extraDisplay {
                 let size = screen.width > 0 ? "\(screen.width)x\(screen.height)" : "PC monitor size"
-                screenText = "extra display (\(size), text scale \(screen.textScale == 0 ? "auto" : "\(screen.textScale)x"))"
+                screenText = "extra display (\(size), text scale \(screen.textScale == 0 ? "auto" : "\(screen.textScale)x")\(screen.maxFps > 60 ? ", up to \(screen.maxFps) fps" : ""))"
             } else {
                 screenText = "mirror this Mac's screen"
             }

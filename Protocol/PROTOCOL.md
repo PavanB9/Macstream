@@ -51,15 +51,23 @@ fork's Mac -> Windows control mode). The macOS cursor is drawn into the video fr
 
 ### HELLO (0x0001)
 ```
-Payload (32 bytes, little endian; older viewers send only the first 16):
+Payload (36 bytes, little endian; older viewers send only the first 16 or 32):
 ┌──────────────┬──────────────┬──────────────┬──────────────┐
 │ ClientWidth  │ ClientHeight │ RefreshRate  │ Dpi          │   this PC's monitor
 │ uint32       │ uint32       │ uint32       │ uint32       │
 ├──────────────┼──────────────┼──────────────┼──────────────┤
 │ ScreenMode   │ TextScale    │ ExtraWidth   │ ExtraHeight  │   what to show
 │ uint32       │ uint32       │ uint32       │ uint32       │
-└──────────────┴──────────────┴──────────────┴──────────────┘
+├──────────────┼──────────────┴──────────────┴──────────────┘
+│ MaxFps       │                                                  frame rate
+│ uint32       │
+└──────────────┘
 ```
+
+- MaxFps (extra display only): 0 = at most 60 fps (default, also for shorter HELLOs);
+  61-120 raise the cap (the viewer offers 90 and 120). The stream runs at
+  min(RefreshRate, cap); the mirror always uses the cap of 60. `MACSTREAM_FPS` on the Mac
+  overrides both.
 
 - ScreenMode: 0 = mirror the Mac's own screen (default, also for 16-byte HELLOs), 1 = an
   extra Mac display (CGVirtualDisplay) made for the PC.

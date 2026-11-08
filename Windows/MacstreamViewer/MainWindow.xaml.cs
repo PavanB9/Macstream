@@ -343,7 +343,8 @@ public partial class MainWindow : Window, ITrayHost, ISettingsHost
         _settings.ExtraDisplay == true,
         _settings.ExtraDisplayWidth ?? 0,
         _settings.ExtraDisplayHeight ?? 0,
-        _settings.ExtraDisplayTextScale ?? 0);
+        _settings.ExtraDisplayTextScale ?? 0,
+        _settings.ExtraDisplayMaxFps ?? (_settings.SmootherMotion == true ? 120 : 0));
 
     MacScreenRequest ISettingsHost.MacScreen
     {
@@ -357,6 +358,8 @@ public partial class MainWindow : Window, ITrayHost, ISettingsHost
             _settings.ExtraDisplayWidth = value.Width;
             _settings.ExtraDisplayHeight = value.Height;
             _settings.ExtraDisplayTextScale = value.TextScale;
+            _settings.ExtraDisplayMaxFps = value.MaxFps;
+            _settings.SmootherMotion = null;
             _settings.Save();
             DiagLog.Write($"Mac screen setting changed: {value}");
             // The Mac reads this when the viewer connects: reconnect now (auto reconnect
