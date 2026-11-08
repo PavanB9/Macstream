@@ -1,0 +1,31 @@
+# Build outputs
+bin/
+obj/
+.build/
+.swiftpm/
+
+# IDE/editor state
+.vs/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Logs and diagnostics
+*.log
+diag.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local runtime/dependency drops
+ffmpeg/
+**/ffmpeg/
+
+# Project-local toolchains, caches, downloads and outputs (see tools/env.ps1)
+.local/
+third_party/
+build/
+logs/

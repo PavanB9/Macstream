@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- WinExe: a normal Windows app, no console window next to the viewer. -->
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <!-- Only for the tray icon (NotifyIcon); part of the same Windows Desktop runtime. -->
+    <UseWindowsForms>true</UseWindowsForms>
+    <!-- WFO0003 is about WinForms DPI settings; the manifest's DPI settings are for WPF. -->
+    <NoWarn>$(NoWarn);WFO0003</NoWarn>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- The program file is Macstream.exe (project and namespaces: MacstreamViewer). -->
+    <AssemblyName>Macstream</AssemblyName>
+    <ApplicationIcon>Assets\Macstream.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <StartupObject>MacstreamViewer.App</StartupObject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Keep WPF's types unambiguous (Application, MessageBox, ...): WinForms is used by name. -->
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FFmpeg.AutoGen" Version="8.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.1" />
+  </ItemGroup>
+
+  <!-- Pinned FFmpeg DLLs from tools/setup-ffmpeg.ps1 are copied into the output ffmpeg\ folder,
+       which is where Decoder/H264Decoder.cs looks first. -->
+  <ItemGroup Condition="Exists('$(MSBuildThisFileDirectory)..\..\third_party\ffmpeg\bin')">
+    <None Include="$(MSBuildThisFileDirectory)..\..\third_party\ffmpeg\bin\*.dll"
+          Link="ffmpeg\%(Filename)%(Extension)"
+          CopyToOutputDirectory="PreserveNewest"
+          Visible="false" />
+  </ItemGroup>
+
+</Project>

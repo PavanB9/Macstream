@@ -1,0 +1,29 @@
+* text=auto
+
+*.cs text eol=crlf
+*.xaml text eol=crlf
+*.csproj text eol=crlf
+*.sln text eol=crlf
+*.props text eol=crlf
+*.targets text eol=crlf
+
+*.swift text eol=lf
+*.m text eol=lf
+*.h text eol=lf
+*.md text eol=lf
+*.sh text eol=lf
+*.conf text eol=lf
+*.txt text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.dll binary
+*.dylib binary
+*.so binary
+*.cmd text eol=crlf
